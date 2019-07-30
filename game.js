@@ -1,6 +1,7 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {Hovering, HoverSystem} from './enemy'
 import {CubeModel} from './common'
+import {CanvasScreen, PlayerAvatar} from './player'
 
 /*
 
@@ -9,6 +10,7 @@ import {CubeModel} from './common'
 * the other person must target enemy ships using one kind of weapon
 * both use a display showing the various vessels in a 2d view and click to do their job.
 * both can see the central view-screen which shows the view of spaceships outside the bridge.
+
 * the players are connected with a data channel.
 * there is no voice chat
 * there is no server (beyond the web server), whichever client goes first becomes the master and generates scenarios. The other one just follows.
@@ -16,12 +18,6 @@ import {CubeModel} from './common'
 
  */
 
-class CanvasScreen {
-    constructor() {
-        this.position = new THREE.Vector3(0,0,0)
-    }
-
-}
 class NavConsoleComponent {
 }
 class NavConsolePlayer {
@@ -39,9 +35,7 @@ class WeaponsConsoleSystem extends System {
 
 }
 
-class PlayerAvatar {
 
-}
 class LocalPlayer {
 
 }
@@ -57,7 +51,7 @@ class GameState {
 }
 class Scenario {
     addEnemy(en) {
-        console.log("adding an enemty",en)
+        console.log("adding an enemy",en)
     }
 }
 
@@ -96,16 +90,17 @@ class Enemy {
 const world = new World();
 const navConsole = world.createEntity()
 navConsole.addComponent(CanvasScreen)
-navConsole.getMutableComponent(CanvasScreen).position.set(0,0,0)
+navConsole.getMutableComponent(CanvasScreen).wrapper.position.set(-2,-1,0)
 navConsole.addComponent(NavConsoleComponent)
 
 const weaponsConsole = world.createEntity()
 weaponsConsole.addComponent(CanvasScreen)
-weaponsConsole.getMutableComponent(CanvasScreen).position.set(0,0,0)
+weaponsConsole.getMutableComponent(CanvasScreen).wrapper.position.set(2,-1,0)
 weaponsConsole.addComponent(WeaponsConsoleComponent)
 
 const player1 = world.createEntity()
 player1.addComponent(PlayerAvatar)
+player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
 player1.addComponent(LocalPlayer)
 player1.addComponent(NavConsolePlayer)
 
@@ -113,6 +108,7 @@ const player2 = world.createEntity()
 player2.addComponent(PlayerAvatar)
 player2.addComponent(NetworkedPlayer)
 player2.addComponent(WeaponsConsolePlayer)
+player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
 
 
 // const mainScreen = world.createEntity()
@@ -155,6 +151,11 @@ function generateScenario() {
     game.getMutableComponent(Scenario).addEnemy(enemy1)
     game.getMutableComponent(Scenario).addEnemy(enemy2)
 }
+
+sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(player1.getComponent(PlayerAvatar).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(player2.getComponent(PlayerAvatar).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(navConsole.getComponent(CanvasScreen).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(weaponsConsole.getComponent(CanvasScreen).wrapper)
 
 world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land
