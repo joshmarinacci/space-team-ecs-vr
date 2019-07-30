@@ -127,7 +127,7 @@ export class CanvasScreenRenderer extends System {
                 shot.age += delta
                 if(shot.age > shot.timeout) {
                     ent.removeComponent(PhaserShot)
-                    shot.target.removeComponent(Enemy)
+                    shot.target.removeComponent(CubeModel)
                 }
             })
 

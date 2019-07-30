@@ -12,6 +12,7 @@ import {
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {ThreeManager} from './three.js'
 import {AnimationSystem} from './three.js'
+import {AnimatePosition} from './three'
 
 /*
 
@@ -75,8 +76,26 @@ class NetworkSystem extends System {
 
 
 const world = new World();
-world.registerSystem(ThreeManager)
+
+world.registerSystem(CanvasScreenInputHandler) // casts touch/click/vr events back to 2D land
+world.registerSystem(MouseInputSystem)
+
+world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
+world.registerSystem(MainThreeRenderer) // draws everything in ThreeJS land
+world.registerSystem(NavConsoleSystem) // handles logic for the nav console
+world.registerSystem(WeaponsConsoleSystem) // handles logic for the weapons console
+world.registerSystem(PhasersRenderer) // draws phasers
+world.registerSystem(TorpedosRenderer) // draws photon torpedos
+world.registerSystem(ScenarioRunner) // moves scenarios through states for different waves
+world.registerSystem(NetworkSystem) // handles communication between people on the network
+world.registerSystem(HoverSystem)
+world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land
 world.registerSystem(AnimationSystem)
+world.registerSystem(ThreeManager)
+
+world.registerComponent(CubeModel)
+world.registerComponent(AnimatePosition)
+world.registerComponent(CanvasScreen)
 
 
 
@@ -121,6 +140,7 @@ game.addComponent(MouseInputState)
 const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
 sceneEnt.addComponent(CameraHolder)
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
 
 
 
@@ -143,22 +163,7 @@ function generateScenario() {
     game.getMutableComponent(Scenario).addEnemy(enemy2)
 }
 
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
 
-world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
-world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land
-world.registerSystem(CanvasScreenInputHandler) // casts touch/click/vr events back to 2D land
-world.registerSystem(MainThreeRenderer) // draws everything in ThreeJS land
-world.registerSystem(NavConsoleSystem) // handles logic for the nav console
-world.registerSystem(WeaponsConsoleSystem) // handles logic for the weapons console
-world.registerSystem(PhasersRenderer) // draws phasers
-world.registerSystem(TorpedosRenderer) // draws photon torpedos
-world.registerSystem(ScenarioRunner) // moves scenarios through states for different waves
-world.registerSystem(NetworkSystem) // handles communication between people on the network
-world.registerSystem(HoverSystem)
-
-//inputs run first
-world.registerSystem(MouseInputSystem, {priority: -1})
 
 function startGame() {
     generateScenario()
