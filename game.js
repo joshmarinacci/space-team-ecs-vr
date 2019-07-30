@@ -73,6 +73,64 @@ class NetworkSystem extends System {
 
 
 const world = new World();
+class ThreeManager extends System {
+    init() {
+        return {
+            queries: {
+                scene: { components: [ThreeSceneHolder]},
+                ships: {
+                    components: [CubeModel],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                },
+                avatars: {
+                    components: [PlayerAvatar],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                },
+                consoles: {
+                    components: [CanvasScreen],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                }
+            }
+        }
+    }
+    execute(delta) {
+        const sceneEnt = this.queries.scene[0]
+        const scene = sceneEnt.getMutableComponent(ThreeSceneHolder).scene
+        this.events.ships.added.forEach(ent => {
+            scene.add(ent.getComponent(CubeModel).wrapper)
+        })
+        this.events.ships.removed.forEach(ent => {
+            scene.remove(ent.getComponent(CubeModel).wrapper)
+        })
+        this.events.avatars.added.forEach(ent => {
+            scene.add(ent.getComponent(PlayerAvatar).wrapper)
+        })
+        this.events.avatars.removed.forEach(ent => {
+            scene.remove(ent.getComponent(PlayerAvatar).wrapper)
+        })
+        this.events.consoles.added.forEach(ent => {
+            scene.add(ent.getComponent(CanvasScreen).wrapper)
+        })
+        this.events.consoles.removed.forEach(ent => {
+            scene.remove(ent.getComponent(CanvasScreen).wrapper)
+        })
+
+    }
+}
+
+world.registerSystem(ThreeManager)
+
+
+
 
 const navConsole = world.createEntity()
 navConsole.addComponent(CanvasScreen)
@@ -115,20 +173,20 @@ const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
 sceneEnt.addComponent(CameraHolder)
 
+
+
 function generateScenario() {
     const enemy1 = world.createEntity()
     enemy1.addComponent(CubeModel,{w:1,h:1,d:1,color:'orange'})
     enemy1.addComponent(Enemy)
     enemy1.addComponent(Hovering, {offset: Math.random()})
     enemy1.getMutableComponent(CubeModel).wrapper.position.set(-2,0,-1)
-    sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(enemy1.getComponent(CubeModel).wrapper)
 
     const enemy2 = world.createEntity()
     enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'aqua'})
     enemy2.addComponent(Enemy)
     enemy2.addComponent(Hovering, {offset: Math.random()})
     enemy2.getMutableComponent(CubeModel).wrapper.position.set(2,0,-1)
-    sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(enemy2.getComponent(CubeModel).wrapper)
 
     const sc = new Scenario()
     game.addComponent(Scenario,sc)
@@ -137,10 +195,6 @@ function generateScenario() {
 }
 
 sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(player1.getComponent(PlayerAvatar).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(player2.getComponent(PlayerAvatar).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(navConsole.getComponent(CanvasScreen).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(weaponsConsole.getComponent(CanvasScreen).wrapper)
 
 world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land

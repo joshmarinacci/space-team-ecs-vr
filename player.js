@@ -1,6 +1,6 @@
 //draw players as spheres
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {CubeModel} from './common'
+import {CubeModel, ThreeSceneHolder} from './common'
 import {Enemy} from './enemy'
 import {MouseInputState} from './input'
 
@@ -90,15 +90,21 @@ export class CanvasScreenRenderer extends System {
     init() {
         return {
             queries: {
+                scene: { components: [ThreeSceneHolder]},
                 input: { components: [MouseInputState]},
                 navs: { components: [CanvasScreen]},
-                enemies: { components: [Enemy, CubeModel] },
+                enemies: {
+                    components: [Enemy, CubeModel],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                },
                 ships: { components: [Ship, CubeModel] },
             }
         }
     }
     execute(delta) {
-        //check the input
         this.queries.input.forEach(ent => {
             const mouse = ent.getComponent(MouseInputState)
             if(mouse.pressed && mouse.type === 'mousedown') {
@@ -138,6 +144,8 @@ export class CanvasScreenRenderer extends System {
 
             can.flush()
         })
+
+
     }
 
     handleClick(pt,mouse) {
@@ -174,7 +182,7 @@ export class CanvasScreenRenderer extends System {
     }
 
     shootEnemy(ent) {
-        ent.removeComponent(Enemy)
+        // ent.removeComponent(Enemy)
         ent.removeComponent(CubeModel)
     }
 }
