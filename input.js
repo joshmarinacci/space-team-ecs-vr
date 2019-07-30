@@ -1,5 +1,5 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {CameraHolder, ThreeSceneHolder} from './common'
+import {CameraHolder, ThreeSceneHolder} from './common.js'
 
 export class MouseInputState {
     constructor() {

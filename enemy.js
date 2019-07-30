@@ -1,5 +1,5 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {CubeModel} from './common'
+import {CubeModel} from './common.js'
 export class Enemy {
 
 }

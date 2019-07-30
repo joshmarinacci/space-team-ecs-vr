@@ -1,6 +1,6 @@
 import {World, System, SchemaTypes } from "./node_modules/ecsy/build/ecsy.module.js"
-import {Enemy, Hovering, HoverSystem} from './enemy'
-import {CameraHolder, CubeModel, ThreeSceneHolder} from './common'
+import {Enemy, Hovering, HoverSystem} from './enemy.js'
+import {CameraHolder, CubeModel, ThreeSceneHolder} from './common.js'
 import {
     CanvasScreen,
     CanvasScreenRenderer,
@@ -8,8 +8,10 @@ import {
     NavConsolePlayer,
     NavConsoleSystem,
     PlayerAvatar, Ship, WeaponsConsoleComponent, WeaponsConsolePlayer, WeaponsConsoleSystem
-} from './player'
-import {MouseInputState, MouseInputSystem} from './input'
+} from './player.js'
+import {MouseInputState, MouseInputSystem} from './input.js'
+import {ThreeManager} from './three.js'
+import {AnimationSystem} from './three.js'
 
 /*
 
@@ -73,61 +75,8 @@ class NetworkSystem extends System {
 
 
 const world = new World();
-class ThreeManager extends System {
-    init() {
-        return {
-            queries: {
-                scene: { components: [ThreeSceneHolder]},
-                ships: {
-                    components: [CubeModel],
-                    events: {
-                        added: { event: 'EntityAdded'},
-                        removed: { event: 'EntityRemoved'}
-                    }
-                },
-                avatars: {
-                    components: [PlayerAvatar],
-                    events: {
-                        added: { event: 'EntityAdded'},
-                        removed: { event: 'EntityRemoved'}
-                    }
-                },
-                consoles: {
-                    components: [CanvasScreen],
-                    events: {
-                        added: { event: 'EntityAdded'},
-                        removed: { event: 'EntityRemoved'}
-                    }
-                }
-            }
-        }
-    }
-    execute(delta) {
-        const sceneEnt = this.queries.scene[0]
-        const scene = sceneEnt.getMutableComponent(ThreeSceneHolder).scene
-        this.events.ships.added.forEach(ent => {
-            scene.add(ent.getComponent(CubeModel).wrapper)
-        })
-        this.events.ships.removed.forEach(ent => {
-            scene.remove(ent.getComponent(CubeModel).wrapper)
-        })
-        this.events.avatars.added.forEach(ent => {
-            scene.add(ent.getComponent(PlayerAvatar).wrapper)
-        })
-        this.events.avatars.removed.forEach(ent => {
-            scene.remove(ent.getComponent(PlayerAvatar).wrapper)
-        })
-        this.events.consoles.added.forEach(ent => {
-            scene.add(ent.getComponent(CanvasScreen).wrapper)
-        })
-        this.events.consoles.removed.forEach(ent => {
-            scene.remove(ent.getComponent(CanvasScreen).wrapper)
-        })
-
-    }
-}
-
 world.registerSystem(ThreeManager)
+world.registerSystem(AnimationSystem)
 
 
 

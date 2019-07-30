@@ -1,8 +1,8 @@
-//draw players as spheres
-import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {CubeModel, ThreeSceneHolder} from './common'
-import {Enemy} from './enemy'
-import {MouseInputState} from './input'
+import {System} from "./node_modules/ecsy/build/ecsy.module.js"
+import {CubeModel, ThreeSceneHolder} from './common.js'
+import {Enemy} from './enemy.js'
+import {MouseInputState} from './input.js'
+import {AnimatePosition} from './three.js'
 
 export class NavConsoleComponent {
 }
@@ -144,8 +144,6 @@ export class CanvasScreenRenderer extends System {
 
             can.flush()
         })
-
-
     }
 
     handleClick(pt,mouse) {
@@ -155,12 +153,10 @@ export class CanvasScreenRenderer extends System {
             // console.log(mouse.intersection.object)
             // console.log(can.mesh)
             if(ent.hasComponent(NavConsoleComponent)) {
-                console.log("nav console")
                 //move the ship
                 this.queries.ships.forEach(ent => {
-                    const ship = ent.getComponent(CubeModel)
-                    ship.wrapper.position.x = (pt.x-50)/10
-                    ship.wrapper.position.z = (pt.y-50)/10
+                    const newPos = new THREE.Vector3((pt.x-50)/10,0,(pt.y-50)/10)
+                    ent.addComponent(AnimatePosition,{to:newPos, dur:3 })
                 })
             }
             if(ent.hasComponent(WeaponsConsoleComponent)) {
