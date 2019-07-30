@@ -1,4 +1,6 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
+import {Hovering, HoverSystem} from './enemy'
+import {CubeModel} from './common'
 
 /*
 
@@ -48,11 +50,6 @@ class NetworkedPlayer {
 }
 
 
-class CubeModel {
-    constructor() {
-        this.position = new THREE.Vector3(0, 0, 0)
-    }
-}
 
 
 class GameState {
@@ -130,16 +127,28 @@ ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
 const game = world.createEntity()
 game.addComponent(GameState)
 
+class ThreeSceneHolder {
+    constructor() {
+        this.object = new THREE.Group()
+    }
+}
+const sceneEnt = world.createEntity()
+sceneEnt.addComponent(ThreeSceneHolder)
+
 function generateScenario() {
     const enemy1 = world.createEntity()
-    enemy1.addComponent(CubeModel,{w:1,h:1,d:1,color:'red'})
+    enemy1.addComponent(CubeModel,{w:1,h:1,d:1,color:'orange'})
     enemy1.addComponent(Enemy)
-    enemy1.getMutableComponent(CubeModel).position.set(0,0,0)
+    enemy1.addComponent(Hovering, {offset: Math.random()})
+    enemy1.getMutableComponent(CubeModel).wrapper.position.set(-2,0,-1)
+    sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(enemy1.getComponent(CubeModel).wrapper)
 
     const enemy2 = world.createEntity()
-    enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'blue'})
+    enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'aqua'})
     enemy2.addComponent(Enemy)
-    enemy2.getMutableComponent(CubeModel).position.set(0,0,0)
+    enemy2.addComponent(Hovering, {offset: Math.random()})
+    enemy2.getMutableComponent(CubeModel).wrapper.position.set(2,0,-1)
+    sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(enemy2.getComponent(CubeModel).wrapper)
 
     const sc = new Scenario()
     game.addComponent(Scenario,sc)
@@ -157,6 +166,7 @@ world.registerSystem(PhasersRenderer) // draws phasers
 world.registerSystem(TorpedosRenderer) // draws photon torpedos
 world.registerSystem(ScenarioRunner) // moves scenarios through states for different waves
 world.registerSystem(NetworkSystem) // handles communication between people on the network
+world.registerSystem(HoverSystem)
 
 
 function startGame() {
@@ -168,7 +178,7 @@ function startGame() {
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 0.005, 10000 );
-    camera.position.z = 20;
+    camera.position.z = 5;
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setClearColor( 0x333333 );
@@ -176,6 +186,11 @@ function startGame() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
+
+    const sch = sceneEnt.getMutableComponent(ThreeSceneHolder)
+    scene.add(sch.object)
+    const ambientLight = new THREE.AmbientLight( 0xcccccc );
+    scene.add( ambientLight );
 
 
     function onWindowResize() {
