@@ -1,6 +1,6 @@
-import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
+import {World, System, SchemaTypes } from "./node_modules/ecsy/build/ecsy.module.js"
 import {Enemy, Hovering, HoverSystem} from './enemy'
-import {CubeModel} from './common'
+import {CameraHolder, CubeModel, ThreeSceneHolder} from './common'
 import {
     CanvasScreen,
     CanvasScreenRenderer,
@@ -9,6 +9,7 @@ import {
     NavConsoleSystem,
     PlayerAvatar
 } from './player'
+import {MouseInputState, MouseInputSystem} from './input'
 
 /*
 
@@ -80,6 +81,7 @@ class NetworkSystem extends System {
 
 
 const world = new World();
+
 const navConsole = world.createEntity()
 navConsole.addComponent(CanvasScreen)
 navConsole.getMutableComponent(CanvasScreen).wrapper.position.set(-2,0,3)
@@ -114,14 +116,11 @@ ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
 
 const game = world.createEntity()
 game.addComponent(GameState)
+game.addComponent(MouseInputState)
 
-class ThreeSceneHolder {
-    constructor() {
-        this.object = new THREE.Group()
-    }
-}
 const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
+sceneEnt.addComponent(CameraHolder)
 
 function generateScenario() {
     const enemy1 = world.createEntity()
@@ -129,14 +128,14 @@ function generateScenario() {
     enemy1.addComponent(Enemy)
     enemy1.addComponent(Hovering, {offset: Math.random()})
     enemy1.getMutableComponent(CubeModel).wrapper.position.set(-2,0,-1)
-    sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(enemy1.getComponent(CubeModel).wrapper)
+    sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(enemy1.getComponent(CubeModel).wrapper)
 
     const enemy2 = world.createEntity()
     enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'aqua'})
     enemy2.addComponent(Enemy)
     enemy2.addComponent(Hovering, {offset: Math.random()})
     enemy2.getMutableComponent(CubeModel).wrapper.position.set(2,0,-1)
-    sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(enemy2.getComponent(CubeModel).wrapper)
+    sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(enemy2.getComponent(CubeModel).wrapper)
 
     const sc = new Scenario()
     game.addComponent(Scenario,sc)
@@ -144,10 +143,11 @@ function generateScenario() {
     game.getMutableComponent(Scenario).addEnemy(enemy2)
 }
 
-sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(player1.getComponent(PlayerAvatar).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(player2.getComponent(PlayerAvatar).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(navConsole.getComponent(CanvasScreen).wrapper)
-sceneEnt.getMutableComponent(ThreeSceneHolder).object.add(weaponsConsole.getComponent(CanvasScreen).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(player1.getComponent(PlayerAvatar).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(player2.getComponent(PlayerAvatar).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(navConsole.getComponent(CanvasScreen).wrapper)
+sceneEnt.getMutableComponent(ThreeSceneHolder).scene.add(weaponsConsole.getComponent(CanvasScreen).wrapper)
 
 world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land
@@ -161,17 +161,20 @@ world.registerSystem(ScenarioRunner) // moves scenarios through states for diffe
 world.registerSystem(NetworkSystem) // handles communication between people on the network
 world.registerSystem(HoverSystem)
 
+//inputs run first
+world.registerSystem(MouseInputSystem, {priority: -1})
 
 function startGame() {
     generateScenario()
     game.getMutableComponent(GameState).mode = 'PLAYING'
 
-    var clock = new THREE.Clock();
+    const clock = new THREE.Clock();
+    const scene = sceneEnt.getComponent(ThreeSceneHolder).scene
 
-    const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 0.005, 10000 );
     camera.position.z = 5;
+
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setClearColor( 0x333333 );
@@ -182,6 +185,7 @@ function startGame() {
 
     const sch = sceneEnt.getMutableComponent(ThreeSceneHolder)
     scene.add(sch.object)
+    sceneEnt.getMutableComponent(CameraHolder).camera = camera
     const ambientLight = new THREE.AmbientLight( 0xcccccc );
     scene.add( ambientLight );
 

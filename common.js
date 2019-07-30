@@ -13,3 +13,17 @@ export class CubeModel {
         }
     }
 }
+
+
+
+export class ThreeSceneHolder {
+    constructor() {
+        this.scene = null
+    }
+}
+
+export class CameraHolder {
+    constructor() {
+        this.camera = null
+    }
+}

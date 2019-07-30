@@ -2,6 +2,7 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel} from './common'
 import {Enemy} from './enemy'
+import {MouseInputState} from './input'
 
 export class NavConsoleComponent {
 }
@@ -31,8 +32,8 @@ export class PlayerAvatar {
 export class CanvasScreen {
     constructor() {
         this.canvas = document.createElement('canvas')
-        this.canvas.width = 100
-        this.canvas.height = 100
+        this.canvas.width = 128
+        this.canvas.height = 128
         this.texture = new THREE.CanvasTexture(this.canvas)
 
         this.mesh = new THREE.Mesh(
@@ -41,6 +42,7 @@ export class CanvasScreen {
         )
         this.wrapper = new THREE.Group()
         this.wrapper.add(this.mesh)
+        this.mesh.userData.clickable = true
 
 
         this.redraw()
@@ -74,12 +76,31 @@ export class CanvasScreenRenderer extends System {
     init() {
         return {
             queries: {
+                input: { components: [MouseInputState]},
                 navs: { components: [NavConsoleComponent, CanvasScreen]},
-                enemies: { components: [Enemy, CubeModel]},
+                enemies: {
+                    components: [Enemy, CubeModel],
+                    events: {
+                        removed: {
+                            event:'ComponentRemoved'
+                        }
+                    }
+                },
             }
         }
     }
     execute(delta) {
+        //check the input
+        this.queries.input.forEach(ent => {
+            const mouse = ent.getComponent(MouseInputState)
+            if(mouse.pressed && mouse.type === 'mousedown') {
+                const uv = mouse.intersection.uv
+                const pt = new THREE.Vector2(uv.x*128, 128 - uv.y*128)
+                this.handleClick(pt)
+            }
+        })
+
+        //draw the navs
         this.queries.navs.forEach(sc => {
             const can = sc.getComponent(CanvasScreen)
             const c = can.getContext()
@@ -98,5 +119,24 @@ export class CanvasScreenRenderer extends System {
 
             can.flush()
         })
+    }
+
+    handleClick(pt) {
+        this.queries.enemies.forEach(ent => {
+            const en = ent.getComponent(CubeModel)
+            const x = 50+en.wrapper.position.x*10
+            const y = 50+en.wrapper.position.z*10
+            if(pt.x >= x && pt.x <= x+10) {
+                if(pt.y >= y && pt.y <= y+10) {
+                    // console.log("clicked on enemy")
+                    this.shootEnemy(ent)
+                }
+            }
+        })
+    }
+
+    shootEnemy(ent) {
+        ent.removeComponent(Enemy)
+        ent.removeComponent(CubeModel)
     }
 }
