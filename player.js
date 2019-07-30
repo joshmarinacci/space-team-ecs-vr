@@ -13,6 +13,16 @@ export class NavConsoleSystem extends System {
 
 }
 
+export class WeaponsConsoleComponent {
+}
+export class WeaponsConsolePlayer {
+
+}
+export class WeaponsConsoleSystem extends System {
+
+}
+
+
 export class PlayerAvatar {
     constructor() {
         this.mesh = new THREE.Mesh(
@@ -71,21 +81,19 @@ export class CanvasScreen {
     }
 }
 
+export class Ship {
+
+}
+
 
 export class CanvasScreenRenderer extends System {
     init() {
         return {
             queries: {
                 input: { components: [MouseInputState]},
-                navs: { components: [NavConsoleComponent, CanvasScreen]},
-                enemies: {
-                    components: [Enemy, CubeModel],
-                    events: {
-                        removed: {
-                            event:'ComponentRemoved'
-                        }
-                    }
-                },
+                navs: { components: [CanvasScreen]},
+                enemies: { components: [Enemy, CubeModel] },
+                ships: { components: [Ship, CubeModel] },
             }
         }
     }
@@ -96,7 +104,7 @@ export class CanvasScreenRenderer extends System {
             if(mouse.pressed && mouse.type === 'mousedown') {
                 const uv = mouse.intersection.uv
                 const pt = new THREE.Vector2(uv.x*128, 128 - uv.y*128)
-                this.handleClick(pt)
+                this.handleClick(pt,mouse)
             }
         })
 
@@ -108,6 +116,7 @@ export class CanvasScreenRenderer extends System {
             c.fillRect(0,0,can.getWidth(),can.getHeight())
 
 
+            //draw the enemies
             this.queries.enemies.forEach(ent => {
                 const en = ent.getComponent(CubeModel)
                 c.fillStyle = 'red'
@@ -117,20 +126,49 @@ export class CanvasScreenRenderer extends System {
                 c.restore()
             })
 
+            //draw the ship
+            this.queries.ships.forEach(ent => {
+                const obj = ent.getComponent(CubeModel)
+                c.fillStyle = 'blue'
+                c.save()
+                c.translate(50+obj.wrapper.position.x*10,obj.wrapper.position.z*10+50)
+                c.fillRect(0,0,10,10)
+                c.restore()
+            })
+
             can.flush()
         })
     }
 
-    handleClick(pt) {
-        this.queries.enemies.forEach(ent => {
-            const en = ent.getComponent(CubeModel)
-            const x = 50+en.wrapper.position.x*10
-            const y = 50+en.wrapper.position.z*10
-            if(pt.x >= x && pt.x <= x+10) {
-                if(pt.y >= y && pt.y <= y+10) {
-                    // console.log("clicked on enemy")
-                    this.shootEnemy(ent)
-                }
+    handleClick(pt,mouse) {
+        this.queries.navs.forEach(ent => {
+            const can = ent.getComponent(CanvasScreen)
+            if(mouse.intersection.object !== can.mesh) return
+            // console.log(mouse.intersection.object)
+            // console.log(can.mesh)
+            if(ent.hasComponent(NavConsoleComponent)) {
+                console.log("nav console")
+                //move the ship
+                this.queries.ships.forEach(ent => {
+                    const ship = ent.getComponent(CubeModel)
+                    ship.wrapper.position.x = (pt.x-50)/10
+                    ship.wrapper.position.z = (pt.y-50)/10
+                })
+            }
+            if(ent.hasComponent(WeaponsConsoleComponent)) {
+                console.log("weapons console")
+                //check if we shot an enemy
+                this.queries.enemies.forEach(ent => {
+                    const en = ent.getComponent(CubeModel)
+                    const x = 50+en.wrapper.position.x*10
+                    const y = 50+en.wrapper.position.z*10
+                    if(pt.x >= x && pt.x <= x+10) {
+                        if(pt.y >= y && pt.y <= y+10) {
+                            // console.log("clicked on enemy")
+                            this.shootEnemy(ent)
+                        }
+                    }
+                })
             }
         })
     }

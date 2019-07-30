@@ -7,7 +7,7 @@ import {
     NavConsoleComponent,
     NavConsolePlayer,
     NavConsoleSystem,
-    PlayerAvatar
+    PlayerAvatar, Ship, WeaponsConsoleComponent, WeaponsConsolePlayer, WeaponsConsoleSystem
 } from './player'
 import {MouseInputState, MouseInputSystem} from './input'
 
@@ -26,14 +26,6 @@ import {MouseInputState, MouseInputSystem} from './input'
 
  */
 
-class WeaponsConsoleComponent {
-}
-class WeaponsConsolePlayer {
-
-}
-class WeaponsConsoleSystem extends System {
-
-}
 
 
 class LocalPlayer {
@@ -89,7 +81,7 @@ navConsole.addComponent(NavConsoleComponent)
 
 const weaponsConsole = world.createEntity()
 weaponsConsole.addComponent(CanvasScreen)
-weaponsConsole.getMutableComponent(CanvasScreen).wrapper.position.set(2,-1,0)
+weaponsConsole.getMutableComponent(CanvasScreen).wrapper.position.set(2,0,3)
 weaponsConsole.addComponent(WeaponsConsoleComponent)
 
 const player1 = world.createEntity()
@@ -113,6 +105,7 @@ player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
 
 const ship = world.createEntity()
 ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
+ship.addComponent(Ship)
 
 const game = world.createEntity()
 game.addComponent(GameState)
