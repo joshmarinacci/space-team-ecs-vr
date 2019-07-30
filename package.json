@@ -1,0 +1,18 @@
+{
+  "name": "space-team-ecs-vr",
+  "version": "0.1.0",
+  "description": "test of a space team like game in VR with an ECS",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshmarinacci/space-team-ecs-vr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joshmarinacci/space-team-ecs-vr/issues"
+  },
+  "homepage": "https://github.com/joshmarinacci/space-team-ecs-vr#readme"
+}
