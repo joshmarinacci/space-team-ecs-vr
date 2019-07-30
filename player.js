@@ -93,6 +93,7 @@ export class CanvasScreenRenderer extends System {
                 scene: { components: [ThreeSceneHolder]},
                 input: { components: [MouseInputState]},
                 navs: { components: [CanvasScreen]},
+                phasers: { components: [PhaserShot]},
                 enemies: {
                     components: [Enemy, CubeModel],
                     events: {
@@ -108,9 +109,7 @@ export class CanvasScreenRenderer extends System {
         this.queries.input.forEach(ent => {
             const mouse = ent.getComponent(MouseInputState)
             if(mouse.pressed && mouse.type === 'mousedown') {
-                const uv = mouse.intersection.uv
-                const pt = new THREE.Vector2(uv.x*128, 128 - uv.y*128)
-                this.handleClick(pt,mouse)
+                this.handleClick(mouse)
             }
         })
 
@@ -118,57 +117,44 @@ export class CanvasScreenRenderer extends System {
         this.queries.navs.forEach(sc => {
             const can = sc.getComponent(CanvasScreen)
             const c = can.getContext()
-            c.fillStyle = 'gray'
-            c.fillRect(0,0,can.getWidth(),can.getHeight())
 
-
-            //draw the enemies
-            this.queries.enemies.forEach(ent => {
-                const en = ent.getComponent(CubeModel)
-                c.fillStyle = 'red'
-                c.save()
-                c.translate(50+en.wrapper.position.x*10,en.wrapper.position.z*10+50)
-                c.fillRect(0,0,10,10)
-                c.restore()
-            })
-
-            //draw the ship
-            this.queries.ships.forEach(ent => {
-                const obj = ent.getComponent(CubeModel)
-                c.fillStyle = 'blue'
-                c.save()
-                c.translate(50+obj.wrapper.position.x*10,obj.wrapper.position.z*10+50)
-                c.fillRect(0,0,10,10)
-                c.restore()
+            this.drawBackground(c,can)
+            this.queries.enemies.forEach(ent =>  this.drawEnemyShip(c,ent.getComponent(CubeModel)))
+            this.queries.ships.forEach(ent => this.drawPlayerShip(c, ent.getComponent(CubeModel)))
+            this.queries.phasers.forEach(ent => {
+                const shot = ent.getMutableComponent(PhaserShot)
+                this.drawPhaserShot(c, ent.getMutableComponent(PhaserShot))
+                shot.age += delta
+                if(shot.age > shot.timeout) {
+                    ent.removeComponent(PhaserShot)
+                    shot.target.removeComponent(Enemy)
+                }
             })
 
             can.flush()
         })
     }
 
-    handleClick(pt,mouse) {
+    handleClick(mouse) {
+        const uv = mouse.intersection.uv
+        const pt = new THREE.Vector2(uv.x*128, 128 - uv.y*128)
         this.queries.navs.forEach(ent => {
             const can = ent.getComponent(CanvasScreen)
             if(mouse.intersection.object !== can.mesh) return
-            // console.log(mouse.intersection.object)
-            // console.log(can.mesh)
             if(ent.hasComponent(NavConsoleComponent)) {
                 //move the ship
                 this.queries.ships.forEach(ent => {
-                    const newPos = new THREE.Vector3((pt.x-50)/10,0,(pt.y-50)/10)
+                    const newPos = this.fromCanvas(pt)
                     ent.addComponent(AnimatePosition,{to:newPos, dur:3 })
                 })
             }
             if(ent.hasComponent(WeaponsConsoleComponent)) {
-                console.log("weapons console")
                 //check if we shot an enemy
                 this.queries.enemies.forEach(ent => {
                     const en = ent.getComponent(CubeModel)
-                    const x = 50+en.wrapper.position.x*10
-                    const y = 50+en.wrapper.position.z*10
-                    if(pt.x >= x && pt.x <= x+10) {
-                        if(pt.y >= y && pt.y <= y+10) {
-                            // console.log("clicked on enemy")
+                    const pt2 = this.toCanvas(en.wrapper.position)
+                    if(pt.x >= pt2.x-10 && pt.x <= pt2.x+10) {
+                        if(pt.y >= pt2.y-10 && pt.y <= pt2.y+10) {
                             this.shootEnemy(ent)
                         }
                     }
@@ -178,7 +164,70 @@ export class CanvasScreenRenderer extends System {
     }
 
     shootEnemy(ent) {
-        // ent.removeComponent(Enemy)
-        ent.removeComponent(CubeModel)
+        const shot = this.world.createEntity()
+        shot.addComponent(PhaserShot,{source:this.queries.ships[0], target:ent})
+    }
+
+    fromCanvas(pt) {
+        return new THREE.Vector3(
+            (pt.x-64)/10,
+            0,
+            (pt.y-64)/10,
+        )
+    }
+
+    toCanvas(v) {
+        return {
+            x: 64+v.x*10,
+            y: 64+v.z*10,
+            z: v.z,
+        }
+    }
+
+    drawEnemyShip(c, en) {
+        c.fillStyle = 'red'
+        c.save()
+        const s = 5
+        const pos = this.toCanvas(en.wrapper.position)
+        c.translate(pos.x,pos.y)
+        c.fillRect(-s,-s,s*2,s*2)
+        c.restore()
+    }
+
+    drawPlayerShip(c, obj) {
+        c.fillStyle = 'blue'
+        c.save()
+        const s = 7
+        const pos = this.toCanvas(obj.wrapper.position)
+        c.translate(pos.x,pos.y)
+        c.fillRect(-s,-s,s*2,s*2)
+        c.restore()
+    }
+
+    drawBackground(c, can) {
+        c.fillStyle = 'gray'
+        c.fillRect(0,0,can.getWidth(),can.getHeight())
+
+    }
+
+    drawPhaserShot(c, shot) {
+        c.strokeStyle = 'white'
+        c.beginPath()
+        const start = this.toCanvas(shot.source.getComponent(CubeModel).wrapper.position)
+        const end = this.toCanvas(shot.target.getComponent(CubeModel).wrapper.position)
+        c.moveTo(start.x,start.y)
+        c.lineTo(end.x,end.y)
+        c.lineWidth = 3.0
+        c.stroke()
+    }
+}
+
+
+class PhaserShot {
+    copy({source, target}) {
+        this.source = source
+        this.target = target
+        this.age = 0
+        this.timeout = 2
     }
 }
