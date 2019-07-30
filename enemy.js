@@ -1,5 +1,8 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel} from './common'
+export class Enemy {
+
+}
 
 export class Hovering {
     constructor() {

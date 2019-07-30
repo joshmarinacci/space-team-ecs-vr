@@ -1,7 +1,14 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {Hovering, HoverSystem} from './enemy'
+import {Enemy, Hovering, HoverSystem} from './enemy'
 import {CubeModel} from './common'
-import {CanvasScreen, PlayerAvatar} from './player'
+import {
+    CanvasScreen,
+    CanvasScreenRenderer,
+    NavConsoleComponent,
+    NavConsolePlayer,
+    NavConsoleSystem,
+    PlayerAvatar
+} from './player'
 
 /*
 
@@ -18,14 +25,6 @@ import {CanvasScreen, PlayerAvatar} from './player'
 
  */
 
-class NavConsoleComponent {
-}
-class NavConsolePlayer {
-
-}
-class NavConsoleSystem extends System {
-
-}
 class WeaponsConsoleComponent {
 }
 class WeaponsConsolePlayer {
@@ -51,14 +50,10 @@ class GameState {
 }
 class Scenario {
     addEnemy(en) {
-        console.log("adding an enemy",en)
     }
 }
 
 class EnemySystem extends System {
-
-}
-class CanvasScreenRenderer extends System {
 
 }
 class CanvasScreenInputHandler extends System {
@@ -82,15 +77,12 @@ class NetworkSystem extends System {
 
 }
 
-class Enemy {
-
-}
 
 
 const world = new World();
 const navConsole = world.createEntity()
 navConsole.addComponent(CanvasScreen)
-navConsole.getMutableComponent(CanvasScreen).wrapper.position.set(-2,-1,0)
+navConsole.getMutableComponent(CanvasScreen).wrapper.position.set(-2,0,3)
 navConsole.addComponent(NavConsoleComponent)
 
 const weaponsConsole = world.createEntity()
