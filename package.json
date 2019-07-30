@@ -14,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/joshmarinacci/space-team-ecs-vr/issues"
   },
-  "homepage": "https://github.com/joshmarinacci/space-team-ecs-vr#readme"
+  "homepage": "https://github.com/joshmarinacci/space-team-ecs-vr#readme",
+  "dependencies": {
+    "ecsy": "^0.1.0"
+  }
 }
