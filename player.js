@@ -85,6 +85,12 @@ export class Ship {
 
 }
 
+export class ShieldStrength {
+    constructor() {
+        this.strength = 100
+    }
+}
+
 
 export class CanvasScreenRenderer extends System {
     init() {
@@ -101,7 +107,7 @@ export class CanvasScreenRenderer extends System {
                         removed: { event: 'EntityRemoved'}
                     }
                 },
-                ships: { components: [Ship, CubeModel] },
+                ships: { components: [Ship, CubeModel, ShieldStrength] },
             }
         }
     }
@@ -136,6 +142,7 @@ export class CanvasScreenRenderer extends System {
                     ent.removeComponent(PhaserShotX)
                 }
             })
+            this.queries.ships.forEach(ent => this.drawOverlay(c, ent.getComponent(ShieldStrength).strength))
 
             can.flush()
         })
@@ -227,6 +234,11 @@ export class CanvasScreenRenderer extends System {
         c.lineTo(end.x,end.y)
         c.lineWidth = 3.0
         c.stroke()
+    }
+
+    drawOverlay(c, strength) {
+        c.fillStyle = 'green'
+        c.fillRect(0,5,strength*1.28,10)
     }
 }
 

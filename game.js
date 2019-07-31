@@ -11,6 +11,7 @@ import {
 } from './player.js'
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {ThreeManager, AnimationSystem, AnimatePosition} from './three.js'
+import {ShieldStrength} from './player.js'
 
 /*
 
@@ -73,35 +74,28 @@ class NetworkedPlayer {
 }
 
 
-
-
 class GameState {
 
 }
+
+
+const SCREEN_STATES = {
+    splash:'splash',
+    choose_player:'choose_player',
+    play:'play',
+    dead:'dead',
+}
+class ScreenState {
+    constructor() {
+        this.state = SCREEN_STATES.splash
+    }
+}
+
 class Scenario {
     addEnemy(en) {
     }
 }
 
-class EnemySystem extends System {
-
-}
-class CanvasScreenInputHandler extends System {
-
-}
-class MainThreeRenderer extends System {
-
-}
-class PhasersRenderer extends System {
-
-}
-class ScenarioRunner extends System {
-
-}
-
-class TorpedosRenderer extends System {
-
-}
 
 class NetworkSystem extends System {
 
@@ -111,16 +105,13 @@ class NetworkSystem extends System {
 
 const world = new World();
 
-world.registerSystem(CanvasScreenInputHandler) // casts touch/click/vr events back to 2D land
 world.registerSystem(MouseInputSystem)
-
-world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
-world.registerSystem(MainThreeRenderer) // draws everything in ThreeJS land
+// world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(NavConsoleSystem) // handles logic for the nav console
 world.registerSystem(WeaponsConsoleSystem) // handles logic for the weapons console
-world.registerSystem(PhasersRenderer) // draws phasers
-world.registerSystem(TorpedosRenderer) // draws photon torpedos
-world.registerSystem(ScenarioRunner) // moves scenarios through states for different waves
+// world.registerSystem(PhasersRenderer) // draws phasers
+// world.registerSystem(TorpedosRenderer) // draws photon torpedos
+// world.registerSystem(ScenarioRunner) // moves scenarios through states for different waves
 world.registerSystem(NetworkSystem) // handles communication between people on the network
 world.registerSystem(HoverSystem)
 world.registerSystem(CanvasScreenRenderer) // renders canvases into textures for ThreeJS land
@@ -157,19 +148,15 @@ player2.addComponent(WeaponsConsolePlayer)
 player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
 
 
-// const mainScreen = world.createEntity()
-// mainScreen.add(GLTFModel,{src:"./mainScreen.gltf"})
-//mainScreen.add(Portal)
-// const room = world.createEntity()
-// room.add(GLTFModel,{src:"./bridge.gltf"})
-
 const ship = world.createEntity()
 ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
 ship.addComponent(Ship)
+ship.addComponent(ShieldStrength)
 
 const game = world.createEntity()
 game.addComponent(GameState)
 game.addComponent(MouseInputState)
+game.addComponent(ScreenState)
 
 const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
@@ -198,9 +185,40 @@ function generateScenario() {
 }
 
 
+const $ = (sel) => document.querySelector(sel)
+const on =(el,type,cb) => el.addEventListener(type,cb)
+
+function hideSplash() {
+    $('#splash').classList.add('hidden')
+}
+
+
+function hideChoose() {
+    $("#choose").classList.add('hidden')
+}
+
+function showChoose() {
+    $('#choose').classList.remove('hidden')
+    on($("#play-nav"),'click',()=>{
+        hideChoose()
+    })
+    on($("#play-weapons"),'click',()=>{
+        hideChoose()
+    })
+}
+
+function setupScreens() {
+    $("#play-vr").setAttribute('disabled',true)
+    $("#play-desktop").addEventListener('click',()=>{
+        hideSplash()
+        showChoose()
+    })
+}
+
 
 function startGame() {
     generateScenario()
+    setupScreens()
     game.getMutableComponent(GameState).mode = 'PLAYING'
 
     const clock = new THREE.Clock();
