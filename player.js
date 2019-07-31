@@ -178,7 +178,6 @@ export class CanvasScreenRenderer extends System {
 
     shootEnemy(ent) {
         const shot = this.world.createEntity()
-        console.log("target is",ent, this.queries.ships[0])
         shot.addComponent(PhaserShot, {source:this.queries.ships[0], target:ent})
         shot.addComponent(PhaserShotX,{source:this.queries.ships[0], target:ent})
     }
@@ -257,7 +256,6 @@ export class PhaserShotX {
     }
 
     copy({source, target}) {
-        console.log("Made",source,target)
         if(!source )return
         this.source = source
         this.target = target

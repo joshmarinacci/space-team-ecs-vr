@@ -136,16 +136,16 @@ weaponsConsole.getMutableComponent(CanvasScreen).wrapper.position.set(2,0,3)
 weaponsConsole.addComponent(WeaponsConsoleComponent)
 
 const player1 = world.createEntity()
-player1.addComponent(PlayerAvatar)
-player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
-player1.addComponent(LocalPlayer)
-player1.addComponent(NavConsolePlayer)
+// player1.addComponent(PlayerAvatar)
+// player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
+// player1.addComponent(LocalPlayer)
+// player1.addComponent(NavConsolePlayer)
 
 const player2 = world.createEntity()
-player2.addComponent(PlayerAvatar)
-player2.addComponent(NetworkedPlayer)
-player2.addComponent(WeaponsConsolePlayer)
-player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
+// player2.addComponent(PlayerAvatar)
+// player2.addComponent(NetworkedPlayer)
+// player2.addComponent(WeaponsConsolePlayer)
+// player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
 
 
 const ship = world.createEntity()
@@ -167,13 +167,13 @@ sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
 
 function generateScenario() {
     const enemy1 = world.createEntity()
-    enemy1.addComponent(CubeModel,{w:1,h:1,d:1,color:'orange'})
+    enemy1.addComponent(CubeModel,{w:1,h:1,d:1,color:'red'})
     enemy1.addComponent(Enemy)
     enemy1.addComponent(Hovering, {offset: Math.random()})
     enemy1.getMutableComponent(CubeModel).wrapper.position.set(-2,0,-1)
 
     const enemy2 = world.createEntity()
-    enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'aqua'})
+    enemy2.addComponent(CubeModel,{w:1,h:1,d:1,color:'red'})
     enemy2.addComponent(Enemy)
     enemy2.addComponent(Hovering, {offset: Math.random()})
     enemy2.getMutableComponent(CubeModel).wrapper.position.set(2,0,-1)
@@ -201,9 +201,15 @@ function showChoose() {
     $('#choose').classList.remove('hidden')
     on($("#play-nav"),'click',()=>{
         hideChoose()
+        player1.addComponent(PlayerAvatar,{color:'aqua'})
+        player1.addComponent(NavConsolePlayer)
+        player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
     })
     on($("#play-weapons"),'click',()=>{
         hideChoose()
+        player1.addComponent(PlayerAvatar,{color:'aqua'})
+        player1.addComponent(WeaponsConsolePlayer)
+        player1.getComponent(PlayerAvatar).wrapper.position.set(+1,-1,1)
     })
 }
 
