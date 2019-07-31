@@ -25,7 +25,43 @@ import {ThreeManager, AnimationSystem, AnimatePosition} from './three.js'
 * there is no server (beyond the web server), whichever client goes first becomes the master and generates scenarios. The other one just follows.
 * Initial scenario. 1, then 2, then 3 ships are attacking. You must fly away from torpedos and fire your own phasers.  Survive and you win. Else you die.
 
+
+scene:
+    world-rot:
+        world-trans:
+            enemy ships:
+    stage:
+        round floor
+        consoles
+        viewer screen (eventually)
+        captain
+        no more model of the ship
+
+when moving ship, move world in the opposite direction
+
+
+screens:
+    splash:
+        click to play flat
+        click to play VR
+        name of the game
+    choose:
+        choose the position you want to be
+        if already chosen by someone else, then disabled
+    play:
+        full scene
+
+
+shield strength is a component on the main game
+render shield strength on to the nav and weapons screens
+
+after enemies are gone, more show up.
+need a message indicator in the main view screen
+
+
  */
+
+
 
 
 
