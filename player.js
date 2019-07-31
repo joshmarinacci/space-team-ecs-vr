@@ -245,9 +245,9 @@ export class PhaserShotX {
         // this.source = null
         this.mesh = new THREE.Mesh(
             new THREE.BoxBufferGeometry(3.0,0.2,0.2),
-            new THREE.MeshLambertMaterial({color:'white'})
+            new THREE.MeshLambertMaterial({color:'red'})
         )
-        this.mesh.position.set(3/2,0,0)
+        this.mesh.position.set(-3/2,0,0)
         this.wrapper = new THREE.Group()
         this.wrapper.add(this.mesh)
     }
