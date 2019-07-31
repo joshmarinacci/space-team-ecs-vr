@@ -234,7 +234,7 @@ export class CanvasScreenRenderer extends System {
     drawPhaserShot(c, shot) {
         c.strokeStyle = 'white'
         c.beginPath()
-        const start = this.toCanvas(shot.source.getComponent(CubeModel).wrapper.position)
+        const start = this.toCanvas(shot.source.getComponent(Ship).wrapper.position)
         const end = this.toCanvas(shot.target.getComponent(CubeModel).wrapper.position)
         c.moveTo(start.x,start.y)
         c.lineTo(end.x,end.y)
@@ -269,7 +269,7 @@ export class PhaserShotX {
         this.age = 0
         this.timeout = 2
 
-        const srcPos = this.source.getComponent(CubeModel).wrapper.position.clone()
+        const srcPos = this.source.getComponent(Ship).wrapper.position.clone()
         const tgtPos = this.target.getComponent(CubeModel).wrapper.position.clone()
 
         const geo = new THREE.Geometry()

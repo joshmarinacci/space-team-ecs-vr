@@ -12,53 +12,14 @@ import {
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {ThreeManager, AnimationSystem, AnimatePosition} from './three.js'
 import {ShieldStrength} from './player.js'
+import {NetworkState, NetworkSystem} from './network.js'
 
 /*
 
-* * Single simple environment with two stations: navigation and weapons, and a single view screen.
-* one person must fly the ship
-* the other person must target enemy ships using one kind of weapon
-* both use a display showing the various vessels in a 2d view and click to do their job.
 * both can see the central view-screen which shows the view of spaceships outside the bridge.
-
 * the players are connected with a data channel.
-* there is no voice chat
-* there is no server (beyond the web server), whichever client goes first becomes the master and generates scenarios. The other one just follows.
-* Initial scenario. 1, then 2, then 3 ships are attacking. You must fly away from torpedos and fire your own phasers.  Survive and you win. Else you die.
-
-
-scene:
-    world-rot:
-        world-trans:
-            enemy ships:
-    stage:
-        //round floor
-        //consoles
-        viewer screen (eventually)
-        captain
-        no more model of the ship
-
-when moving ship, move world in the opposite direction
-
-
-// screens:
-//     splash:
-//         click to play flat
-//         click to play VR
-//         name of the game
-//     choose:
-//         choose the position you want to be
-//         if already chosen by someone else, then disabled
-//     play:
-//         full scene
-
-
-// shield strength is a component on the main game
-// render shield strength on to the nav and weapons screens
-
-after enemies are gone, more show up.
-need a message indicator in the main view screen
-
+* after enemies are gone, more show up.
+* need a message indicator in the main view screen
 
  */
 
@@ -97,12 +58,6 @@ class Scenario {
 }
 
 
-class NetworkSystem extends System {
-
-}
-
-
-
 const world = new World();
 
 world.registerSystem(MouseInputSystem)
@@ -135,19 +90,6 @@ weaponsConsole.addComponent(CanvasScreen)
 weaponsConsole.getMutableComponent(CanvasScreen).wrapper.position.set(2,0,3)
 weaponsConsole.addComponent(WeaponsConsoleComponent)
 
-const player1 = world.createEntity()
-// player1.addComponent(PlayerAvatar)
-// player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
-// player1.addComponent(LocalPlayer)
-// player1.addComponent(NavConsolePlayer)
-
-const player2 = world.createEntity()
-// player2.addComponent(PlayerAvatar)
-// player2.addComponent(NetworkedPlayer)
-// player2.addComponent(WeaponsConsolePlayer)
-// player2.getComponent(PlayerAvatar).wrapper.position.set(1,-1,1)
-
-
 const ship = world.createEntity()
 // ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
 ship.addComponent(Ship)
@@ -157,6 +99,7 @@ const game = world.createEntity()
 game.addComponent(GameState)
 game.addComponent(MouseInputState)
 game.addComponent(ScreenState)
+game.addComponent(NetworkState)
 
 const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
@@ -200,15 +143,19 @@ function showChoose() {
     $('#choose').classList.remove('hidden')
     on($("#play-nav"),'click',()=>{
         hideChoose()
-        player1.addComponent(PlayerAvatar,{color:'aqua'})
-        player1.addComponent(NavConsolePlayer)
-        player1.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
+        const player = world.createEntity()
+        player.addComponent(PlayerAvatar,{color:'aqua'})
+        player.addComponent(NavConsolePlayer)
+        player.addComponent(LocalPlayer)
+        player.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
     })
     on($("#play-weapons"),'click',()=>{
         hideChoose()
-        player1.addComponent(PlayerAvatar,{color:'aqua'})
-        player1.addComponent(WeaponsConsolePlayer)
-        player1.getComponent(PlayerAvatar).wrapper.position.set(+1,-1,1)
+        const player = world.createEntity()
+        player.addComponent(LocalPlayer)
+        player.addComponent(PlayerAvatar,{color:'aqua'})
+        player.addComponent(WeaponsConsolePlayer)
+        player.getComponent(PlayerAvatar).wrapper.position.set(+1,-1,1)
     })
 }
 
