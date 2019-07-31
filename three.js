@@ -1,7 +1,6 @@
 import {System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel, ThreeSceneHolder} from './common.js'
-import {CanvasScreen, PlayerAvatar, PhaserShotX} from './player.js'
-import {Ship} from './player'
+import {CanvasScreen, PhaserShotX, PlayerAvatar, Ship} from './player.js'
 
 export class ThreeManager extends System {
     init() {

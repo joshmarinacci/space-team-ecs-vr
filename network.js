@@ -1,5 +1,5 @@
 import {System} from "./node_modules/ecsy/build/ecsy.module.js"
-import {PhaserShotX, Ship} from './player.js'
+import {LocalPlayer, NavConsolePlayer, PhaserShotX, Ship, WeaponsConsolePlayer} from './player.js'
 
 const states = {
     disconnected:'disconnected',
@@ -28,6 +28,13 @@ export class NetworkSystem extends System {
                         removed: { event: 'EntityRemoved'}
                     }
                 },
+                players: {
+                    components: [LocalPlayer],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                }
             }
         }
     }
@@ -97,6 +104,16 @@ export class NetworkSystem extends System {
             const phaser = ent.getComponent(PhaserShotX)
             console.log("fired a phaser at ",phaser.target)
             //if phaser changed, send over the network
+        })
+
+        this.events.players.added.forEach(ent => {
+            console.log("ent",ent)
+            if(ent.hasComponent(NavConsolePlayer)) {
+                console.log("chose navigation")
+            }
+            if(ent.hasComponent(WeaponsConsolePlayer)) {
+                console.log("chose weapons")
+            }
         })
     }
 }

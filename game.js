@@ -1,17 +1,22 @@
-import {World, System, SchemaTypes } from "./node_modules/ecsy/build/ecsy.module.js"
+import {World} from "./node_modules/ecsy/build/ecsy.module.js"
 import {Enemy, Hovering, HoverSystem} from './enemy.js'
 import {CameraHolder, CubeModel, ThreeSceneHolder} from './common.js'
 import {
     CanvasScreen,
     CanvasScreenRenderer,
+    LocalPlayer,
     NavConsoleComponent,
     NavConsolePlayer,
     NavConsoleSystem,
-    PlayerAvatar, Ship, WeaponsConsoleComponent, WeaponsConsolePlayer, WeaponsConsoleSystem
+    PlayerAvatar,
+    ShieldStrength,
+    Ship,
+    WeaponsConsoleComponent,
+    WeaponsConsolePlayer,
+    WeaponsConsoleSystem
 } from './player.js'
 import {MouseInputState, MouseInputSystem} from './input.js'
-import {ThreeManager, AnimationSystem, AnimatePosition} from './three.js'
-import {ShieldStrength} from './player.js'
+import {AnimatePosition, AnimationSystem, ThreeManager} from './three.js'
 import {NetworkState, NetworkSystem} from './network.js'
 
 /*
@@ -27,9 +32,6 @@ import {NetworkState, NetworkSystem} from './network.js'
 
 
 
-class LocalPlayer {
-
-}
 class NetworkedPlayer {
 
 }

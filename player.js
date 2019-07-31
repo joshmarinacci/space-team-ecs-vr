@@ -2,8 +2,10 @@ import {System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel, ThreeSceneHolder} from './common.js'
 import {Enemy} from './enemy.js'
 import {MouseInputState} from './input.js'
-import {AnimatePosition} from './three.js'
 
+export class LocalPlayer {
+
+}
 export class NavConsoleComponent {
 }
 export class NavConsolePlayer {
