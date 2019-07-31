@@ -10,9 +10,7 @@ import {
     PlayerAvatar, Ship, WeaponsConsoleComponent, WeaponsConsolePlayer, WeaponsConsoleSystem
 } from './player.js'
 import {MouseInputState, MouseInputSystem} from './input.js'
-import {ThreeManager} from './three.js'
-import {AnimationSystem} from './three.js'
-import {AnimatePosition} from './three'
+import {ThreeManager, AnimationSystem, AnimatePosition} from './three.js'
 
 /*
 

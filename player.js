@@ -126,8 +126,14 @@ export class CanvasScreenRenderer extends System {
                 this.drawPhaserShot(c, ent.getMutableComponent(PhaserShot))
                 shot.age += delta
                 if(shot.age > shot.timeout) {
-                    ent.removeComponent(PhaserShot)
+                    const sceneEnt = this.queries.scene[0]
+                    const scene = sceneEnt.getMutableComponent(ThreeSceneHolder).scene
+
+                    scene.remove(shot.target.getComponent(CubeModel).wrapper)
                     shot.target.removeComponent(CubeModel)
+                    ent.removeComponent(PhaserShot)
+                    scene.remove(ent.getComponent(PhaserShotX).wrapper)
+                    ent.removeComponent(PhaserShotX)
                 }
             })
 
@@ -165,7 +171,9 @@ export class CanvasScreenRenderer extends System {
 
     shootEnemy(ent) {
         const shot = this.world.createEntity()
-        shot.addComponent(PhaserShot,{source:this.queries.ships[0], target:ent})
+        console.log("target is",ent, this.queries.ships[0])
+        shot.addComponent(PhaserShot, {source:this.queries.ships[0], target:ent})
+        shot.addComponent(PhaserShotX,{source:this.queries.ships[0], target:ent})
     }
 
     fromCanvas(pt) {
@@ -229,5 +237,33 @@ class PhaserShot {
         this.target = target
         this.age = 0
         this.timeout = 2
+    }
+}
+
+export class PhaserShotX {
+    constructor() {
+        // this.source = null
+        this.mesh = new THREE.Mesh(
+            new THREE.BoxBufferGeometry(3.0,0.2,0.2),
+            new THREE.MeshLambertMaterial({color:'white'})
+        )
+        this.mesh.position.set(3/2,0,0)
+        this.wrapper = new THREE.Group()
+        this.wrapper.add(this.mesh)
+    }
+
+    copy({source, target}) {
+        console.log("Made",source,target)
+        if(!source )return
+        this.source = source
+        this.target = target
+        this.age = 0
+        this.timeout = 2
+        this.wrapper.position.copy(this.source.getComponent(CubeModel).wrapper.position)
+
+        const tgtPos = this.target.getComponent(CubeModel).wrapper.position
+        // const diff = .sub(this.wrapper.position)
+        this.wrapper.lookAt(tgtPos)
+        // console.log("diff is",diff)
     }
 }

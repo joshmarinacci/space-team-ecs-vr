@@ -1,6 +1,6 @@
 import {System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel, ThreeSceneHolder} from './common.js'
-import {CanvasScreen, PlayerAvatar} from './player.js'
+import {CanvasScreen, PlayerAvatar, PhaserShotX} from './player.js'
 
 export class ThreeManager extends System {
     init() {
@@ -27,7 +27,14 @@ export class ThreeManager extends System {
                         added: { event: 'EntityAdded'},
                         removed: { event: 'EntityRemoved'}
                     }
-                }
+                },
+                phasers: {
+                    components: [PhaserShotX],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                },
             }
         }
     }
@@ -38,7 +45,7 @@ export class ThreeManager extends System {
             scene.add(ent.getComponent(CubeModel).wrapper)
         })
         this.events.ships.removed.forEach(ent => {
-            scene.remove(ent.getComponent(CubeModel).wrapper)
+            if(ent.hasComponent(CubeModel)) scene.remove(ent.getComponent(CubeModel).wrapper)
         })
         this.events.avatars.added.forEach(ent => {
             scene.add(ent.getComponent(PlayerAvatar).wrapper)
@@ -51,6 +58,12 @@ export class ThreeManager extends System {
         })
         this.events.consoles.removed.forEach(ent => {
             scene.remove(ent.getComponent(CanvasScreen).wrapper)
+        })
+        this.events.phasers.added.forEach(ent => {
+            scene.add(ent.getComponent(PhaserShotX).wrapper)
+        })
+        this.events.phasers.removed.forEach(ent => {
+            if(ent.hasComponent(PhaserShotX)) scene.remove(ent.getComponent(PhaserShotX).wrapper)
         })
 
     }
