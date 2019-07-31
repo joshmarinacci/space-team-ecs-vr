@@ -1,6 +1,7 @@
 import {System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CubeModel, ThreeSceneHolder} from './common.js'
 import {CanvasScreen, PlayerAvatar, PhaserShotX} from './player.js'
+import {Ship} from './player'
 
 export class ThreeManager extends System {
     init() {
@@ -8,6 +9,13 @@ export class ThreeManager extends System {
             queries: {
                 scene: { components: [ThreeSceneHolder]},
                 ships: {
+                    components: [Ship],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
+                },
+                enemies: {
                     components: [CubeModel],
                     events: {
                         added: { event: 'EntityAdded'},
@@ -39,25 +47,34 @@ export class ThreeManager extends System {
         }
     }
     execute(delta) {
-        const sceneEnt = this.queries.scene[0]
-        const scene = sceneEnt.getMutableComponent(ThreeSceneHolder).scene
+        const holder = this.queries.scene[0].getMutableComponent(ThreeSceneHolder)
+        const scene = holder.scene
         this.events.ships.added.forEach(ent => {
-            scene.add(ent.getComponent(CubeModel).wrapper)
+            holder.ship_group.add(ent.getComponent(Ship).wrapper)
         })
         this.events.ships.removed.forEach(ent => {
-            if(ent.hasComponent(CubeModel)) scene.remove(ent.getComponent(CubeModel).wrapper)
+            if(ent.hasComponent(Ship)) holder.ship_group.remove(ent.getComponent(Ship).wrapper)
         })
+
+
+        this.events.enemies.added.forEach(ent => {
+            holder.space_trans.add(ent.getComponent(CubeModel).wrapper)
+        })
+        this.events.enemies.removed.forEach(ent => {
+            if(ent.hasComponent(CubeModel)) holder.space_trans.remove(ent.getComponent(CubeModel).wrapper)
+        })
+
         this.events.avatars.added.forEach(ent => {
-            scene.add(ent.getComponent(PlayerAvatar).wrapper)
+            holder.ship_group.add(ent.getComponent(PlayerAvatar).wrapper)
         })
         this.events.avatars.removed.forEach(ent => {
-            scene.remove(ent.getComponent(PlayerAvatar).wrapper)
+            holder.ship_group.remove(ent.getComponent(PlayerAvatar).wrapper)
         })
         this.events.consoles.added.forEach(ent => {
-            scene.add(ent.getComponent(CanvasScreen).wrapper)
+            holder.ship_group.add(ent.getComponent(CanvasScreen).wrapper)
         })
         this.events.consoles.removed.forEach(ent => {
-            scene.remove(ent.getComponent(CanvasScreen).wrapper)
+            holder.ship_group.remove(ent.getComponent(CanvasScreen).wrapper)
         })
         this.events.phasers.added.forEach(ent => {
             scene.add(ent.getComponent(PhaserShotX).wrapper)

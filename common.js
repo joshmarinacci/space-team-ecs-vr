@@ -18,7 +18,15 @@ export class CubeModel {
 
 export class ThreeSceneHolder {
     constructor() {
-        this.scene = null
+        this.scene = new THREE.Scene()
+        this.space_rot = new THREE.Group()
+        this.space_trans = new THREE.Group()
+        this.ship_group = new THREE.Group()
+
+        this.scene.add(this.space_rot)
+        this.space_rot.add(this.space_trans)
+        this.scene.add(this.ship_group)
+
     }
 }
 

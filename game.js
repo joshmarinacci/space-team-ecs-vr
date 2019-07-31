@@ -32,8 +32,8 @@ scene:
         world-trans:
             enemy ships:
     stage:
-        round floor
-        consoles
+        //round floor
+        //consoles
         viewer screen (eventually)
         captain
         no more model of the ship
@@ -41,20 +41,20 @@ scene:
 when moving ship, move world in the opposite direction
 
 
-screens:
-    splash:
-        click to play flat
-        click to play VR
-        name of the game
-    choose:
-        choose the position you want to be
-        if already chosen by someone else, then disabled
-    play:
-        full scene
+// screens:
+//     splash:
+//         click to play flat
+//         click to play VR
+//         name of the game
+//     choose:
+//         choose the position you want to be
+//         if already chosen by someone else, then disabled
+//     play:
+//         full scene
 
 
-shield strength is a component on the main game
-render shield strength on to the nav and weapons screens
+// shield strength is a component on the main game
+// render shield strength on to the nav and weapons screens
 
 after enemies are gone, more show up.
 need a message indicator in the main view screen
@@ -149,7 +149,7 @@ const player2 = world.createEntity()
 
 
 const ship = world.createEntity()
-ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
+// ship.addComponent(CubeModel, {w:1,h:1,d:1, color:'green'})
 ship.addComponent(Ship)
 ship.addComponent(ShieldStrength)
 
@@ -161,7 +161,6 @@ game.addComponent(ScreenState)
 const sceneEnt = world.createEntity()
 sceneEnt.addComponent(ThreeSceneHolder)
 sceneEnt.addComponent(CameraHolder)
-sceneEnt.getMutableComponent(ThreeSceneHolder).scene = new THREE.Scene();
 
 
 
@@ -230,9 +229,21 @@ function startGame() {
     const clock = new THREE.Clock();
     const scene = sceneEnt.getComponent(ThreeSceneHolder).scene
 
-
     const camera = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 0.005, 10000 );
     camera.position.z = 5;
+
+    const floor = new THREE.Mesh(
+        new THREE.CircleBufferGeometry(2,16),
+        new THREE.MeshLambertMaterial({color: 'gray'})
+    )
+
+    function toRad(def) {
+        return def/180*Math.PI
+    }
+
+    floor.rotation.x = toRad(-90)
+    floor.position.y = -1.5
+    sceneEnt.getComponent(ThreeSceneHolder).ship_group.add(floor)
 
 
     const renderer = new THREE.WebGLRenderer();
@@ -242,8 +253,6 @@ function startGame() {
     document.body.appendChild( renderer.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
 
-    const sch = sceneEnt.getMutableComponent(ThreeSceneHolder)
-    scene.add(sch.object)
     sceneEnt.getMutableComponent(CameraHolder).camera = camera
     const ambientLight = new THREE.AmbientLight( 0xcccccc );
     scene.add( ambientLight );

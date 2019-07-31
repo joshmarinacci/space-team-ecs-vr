@@ -82,7 +82,9 @@ export class CanvasScreen {
 }
 
 export class Ship {
-
+    constructor() {
+        this.wrapper = new THREE.Group()
+    }
 }
 
 export class ShieldStrength {
@@ -107,7 +109,7 @@ export class CanvasScreenRenderer extends System {
                         removed: { event: 'EntityRemoved'}
                     }
                 },
-                ships: { components: [Ship, CubeModel, ShieldStrength] },
+                ships: { components: [Ship, ShieldStrength] },
             }
         }
     }
@@ -126,7 +128,7 @@ export class CanvasScreenRenderer extends System {
 
             this.drawBackground(c,can)
             this.queries.enemies.forEach(ent =>  this.drawEnemyShip(c,ent.getComponent(CubeModel)))
-            this.queries.ships.forEach(ent => this.drawPlayerShip(c, ent.getComponent(CubeModel)))
+            this.queries.ships.forEach(ent => this.drawPlayerShip(c, ent.getComponent(Ship)))
             this.queries.phasers.forEach(ent => {
                 const shot = ent.getMutableComponent(PhaserShot)
                 this.drawPhaserShot(c, ent.getMutableComponent(PhaserShot))
@@ -158,7 +160,12 @@ export class CanvasScreenRenderer extends System {
                 //move the ship
                 this.queries.ships.forEach(ent => {
                     const newPos = this.fromCanvas(pt)
-                    ent.addComponent(AnimatePosition,{to:newPos, dur:3 })
+                    // ent.addComponent(AnimatePosition,{to:newPos, dur:3 })
+                    const ship = ent.getMutableComponent(Ship)
+                    ship.wrapper.position.copy(newPos)
+                    const h = this.queries.scene[0].getMutableComponent(ThreeSceneHolder)
+                    h.space_trans.position.x = newPos.x*-1
+                    h.space_trans.position.z = newPos.z*-1
                 })
             }
             if(ent.hasComponent(WeaponsConsoleComponent)) {
