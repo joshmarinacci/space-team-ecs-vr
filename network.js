@@ -13,6 +13,8 @@ export class NetworkState {
     }
 }
 
+const CHANNEL = "foozoo"
+
 export class NetworkSystem extends System {
     init() {
         return {
@@ -37,26 +39,46 @@ export class NetworkSystem extends System {
     updateNetwork(state) {
         this.queries.ships.forEach(ent => {
             const ship = ent.getComponent(Ship)
-            console.log("ship is now",ship.wrapper.position.x)
+            // console.log("ship is now",ship.wrapper.position.x)
             //if position changed, then send over the network
         })
 
         if(state.mode === states.disconnected) {
             state.mode = states.connecting
-            console.log("state is",state.mode)
-            /*
+            console.log("connecting to the network")
             state.pubnub = new PubNub({
-                pubkey:'foo',
-                subkey:'foo'
+                publish_key:'pub-c-d25e6314-7990-4ab7-a3c5-bc1675a76c78',
+                subscribe_key:'sub-c-3c574a32-b3dd-11e9-a7e1-2afc1677ec4d'
             })
             state.pubnub.subscribe({
-                channels:['foozoo'],
-                onMessage:((m)=>{
+                channels: [CHANNEL],
+            })
+            state.pubnub.addListener({
+                status: (e) => {
+                    // console.log("status",e)
+                    if(e.category === 'PNConnectedCategory') {
+                        console.log("connected")
+                        state.mode = states.connected
+                        state.pubnub.publish({
+                            channel:CHANNEL,
+                            message:{
+                                type:'choose',
+                                role:'nav'
+                            }
+                        })
+                    }
+                },
+                message:((m)=>{
+                    if(m.publisher === state.pubnub.getUUID()) {
+                        console.log("it's my own message. never mind")
+                        return
+                    }
                     console.log("got a message",m)
-                    if(m.payload.type === 'choose') {
-                        console.log("the other player has chosen",m.payload.role)
+                    if(m.message.type === 'choose') {
+                        console.log("the other player has chosen",m.message.role)
                     }
                 }),
+                /*
                 onConnect:(()=>{
                     state.mode = states.connected
                     state.pubnub.publish({
@@ -66,8 +88,8 @@ export class NetworkSystem extends System {
                         }
                     })
                 }),
+                 */
             })
-             */
         }
 
 
