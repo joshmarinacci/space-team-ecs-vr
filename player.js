@@ -242,14 +242,6 @@ class PhaserShot {
 
 export class PhaserShotX {
     constructor() {
-        // this.source = null
-        this.mesh = new THREE.Mesh(
-            new THREE.BoxBufferGeometry(3.0,0.2,0.2),
-            new THREE.MeshLambertMaterial({color:'red'})
-        )
-        this.mesh.position.set(-3/2,0,0)
-        this.wrapper = new THREE.Group()
-        this.wrapper.add(this.mesh)
     }
 
     copy({source, target}) {
@@ -259,11 +251,16 @@ export class PhaserShotX {
         this.target = target
         this.age = 0
         this.timeout = 2
-        this.wrapper.position.copy(this.source.getComponent(CubeModel).wrapper.position)
 
-        const tgtPos = this.target.getComponent(CubeModel).wrapper.position
-        // const diff = .sub(this.wrapper.position)
-        this.wrapper.lookAt(tgtPos)
-        // console.log("diff is",diff)
+        const srcPos = this.source.getComponent(CubeModel).wrapper.position.clone()
+        const tgtPos = this.target.getComponent(CubeModel).wrapper.position.clone()
+
+        const geo = new THREE.Geometry()
+        geo.vertices.push(srcPos)
+        geo.vertices.push(tgtPos)
+        const mat = new THREE.LineBasicMaterial({color:'red'})
+        this.mesh = new THREE.Line(geo,mat)
+        this.wrapper = new THREE.Group()
+        this.wrapper.add(this.mesh)
     }
 }
