@@ -107,7 +107,7 @@ export class NetworkSystem extends System {
         })
 
         this.events.players.added.forEach(ent => {
-            console.log("ent",ent)
+            // console.log("ent",ent)
             if(ent.hasComponent(NavConsolePlayer)) {
                 console.log("chose navigation")
             }

@@ -1,4 +1,5 @@
 import {CameraHolder, ThreeSceneHolder} from './common.js'
+import {Clicked, Clickable} from './input.js'
 
 function printError(err) {
     console.log(err)
@@ -134,12 +135,16 @@ export class ImmersivePointerSystem {
     }
     execute(delta) {
         const renderer = this.queries.scenes.component[0].getComponent(ThreeSceneHolder).renderer
+        const scene = this.queries.scenes.component[0].getComponent(ThreeSceneHolder).scene
+
 
         this.queries.pointers.added.forEach((ent)=>{
             const pointer = ent.getComponent(ImmersivePointer)
-            pointer.controller = this.renderer.vr.getController(pointer.hand);
-            pointer.controller.addEventListener('selectstart', pointer.controllerSelectStart.bind(pointer));
-            pointer.controller.addEventListener('selectend', pointercontrollerSelectEnd.bind(pointer));
+            pointer.controller = renderer.vr.getController(pointer.hand);
+            pointer.controller.addEventListener('selectstart',
+                pointer.controllerSelectStart.bind(pointer));
+            // pointer.controller.addEventListener('selectend',
+            //     pointer.controllerSelectEnd.bind(pointer));
 
             const geometry = new THREE.BufferGeometry()
             geometry.addAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, -8], 3));
@@ -177,6 +182,7 @@ export class ImmersivePointerSystem {
         const dir = new THREE.Vector3(0, 0, -1)
         dir.applyQuaternion(c.quaternion)
         pointer.raycaster.set(c.position, dir)
+        const scene = this.queries.scenes.component[0].getComponent(ThreeSceneHolder).scene
         const intersects = pointer.raycaster.intersectObjects(scene.children, true)
         //     .filter(it => this.intersectionFilter(it.object))
         intersects.forEach((it) => {
@@ -184,6 +190,7 @@ export class ImmersivePointerSystem {
             //if a clickable object was the target, then add a Clicked component
             const clickable = this.queries.clickable.find(ent => ent.getComponent(Clickable).getThreeObject() == it.object)
             if(clickable) {
+                console.log("found a clickble",clickable)
                 clickable.addComponent(Clicked,{intersection:it})
             }
         })

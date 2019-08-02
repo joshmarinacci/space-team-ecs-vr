@@ -19,8 +19,11 @@ import {
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {AnimatePosition, AnimationSystem, ThreeManager} from './three.js'
 import {NetworkState, NetworkSystem} from './network.js'
-import {ImmersivePointerSystem} from './immersive.js'
-import {VR_DETECTED, VRManager} from './immersive.js'
+import {ImmersivePointerSystem,
+    VR_DETECTED,
+    VRManager,
+    ImmersivePointer
+} from './immersive.js'
 
 /*
 
@@ -176,8 +179,11 @@ function setupScreens() {
     on($("#play-vr"),'click',()=>{
         console.log('starting the VR')
         vr.enterVR()
-        game.addComponent(VRMode)
-        game.addComponent(Pointer, {hand:0})
+        // game.addComponent(VRMode)
+        const pointer1 = world.createEntity()
+        pointer1.addComponent(ImmersivePointer,{hand:0})
+        const pointer2 = world.createEntity()
+        pointer2.addComponent(ImmersivePointer,{hand:1})
     })
     on($("#play-desktop"),'click',()=>{
         hideSplash()

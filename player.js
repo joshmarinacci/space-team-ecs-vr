@@ -282,7 +282,6 @@ class PhaserShot {
         this.target = target
         this.age = 0
         this.timeout = 2
-        console.log("Made a phaser shot",this.source,this.target)
     }
 }
 
