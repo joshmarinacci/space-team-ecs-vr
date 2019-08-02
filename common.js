@@ -23,9 +23,14 @@ export class ThreeSceneHolder {
         this.space_trans = new THREE.Group()
         this.ship_group = new THREE.Group()
 
-        this.scene.add(this.space_rot)
+        this.camera_adjust = new THREE.Group()
+        this.camera_adjust.position.z = -5
+        this.camera_adjust.position.y = 1
+
+        this.scene.add(this.camera_adjust)
+        this.camera_adjust.add(this.space_rot)
         this.space_rot.add(this.space_trans)
-        this.scene.add(this.ship_group)
+        this.camera_adjust.add(this.ship_group)
         this.renderer = null
     }
 }

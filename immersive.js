@@ -1,3 +1,4 @@
+import {System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CameraHolder, ThreeSceneHolder} from './common.js'
 import {Clicked, Clickable} from './input.js'
 
@@ -11,6 +12,10 @@ export const VR_DISCONNECTED = "disconnected"
 export const VR_PRESENTCHANGE = "presentchange"
 export const VR_ACTIVATED = "activated"
 
+
+export class VRMode {
+
+}
 
 
 export class VRManager {
@@ -55,7 +60,7 @@ export class VRManager {
 
             navigator.getVRDisplays()
                 .then( ( displays ) => {
-                    console.log("vr scanned")
+                    console.log("vr scanned. found ", displays.length, 'displays')
                     if ( displays.length > 0 ) {
 
                         // showEnterVR( displays[ 0 ] );
@@ -120,26 +125,30 @@ export class ImmersivePointer {
 }
 
 
-export class ImmersivePointerSystem {
+export class ImmersivePointerSystem extends System {
     init() {
         return {
             queries: {
                 pointers: {
-                    component: [ImmersivePointer]
+                    components: [ImmersivePointer],
+                    events: {
+                        added: { event: 'EntityAdded'},
+                        removed: { event: 'EntityRemoved'}
+                    }
                 },
                 scenes: {
-                    component: [ThreeSceneHolder, CameraHolder]
+                    components: [ThreeSceneHolder, CameraHolder]
                 }
             }
         }
     }
     execute(delta) {
-        const renderer = this.queries.scenes.component[0].getComponent(ThreeSceneHolder).renderer
-        const scene = this.queries.scenes.component[0].getComponent(ThreeSceneHolder).scene
+        const renderer = this.queries.scenes[0].getComponent(ThreeSceneHolder).renderer
+        const scene = this.queries.scenes[0].getComponent(ThreeSceneHolder).scene
 
 
-        this.queries.pointers.added.forEach((ent)=>{
-            const pointer = ent.getComponent(ImmersivePointer)
+        this.events.pointers.added.forEach((ent)=>{
+            const pointer = ent.getMutableComponent(ImmersivePointer)
             pointer.controller = renderer.vr.getController(pointer.hand);
             pointer.controller.addEventListener('selectstart',
                 pointer.controllerSelectStart.bind(pointer));

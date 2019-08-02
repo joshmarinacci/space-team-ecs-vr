@@ -22,7 +22,8 @@ import {NetworkState, NetworkSystem} from './network.js'
 import {ImmersivePointerSystem,
     VR_DETECTED,
     VRManager,
-    ImmersivePointer
+    ImmersivePointer,
+    VRMode
 } from './immersive.js'
 
 /*
@@ -140,19 +141,24 @@ function generateScenario() {
 const $ = (sel) => document.querySelector(sel)
 const on =(el,type,cb) => el.addEventListener(type,cb)
 
-function hideSplash() {
-    $('#splash').classList.add('hidden')
+function hideMode() {
+    $('#mode').classList.add('hidden')
+}
+function showMode() {
+    $("#mode").classList.remove('hidden')
+}
+function showRole() {
+    $("#role").classList.remove('hidden')
+}
+function hideRole() {
+    $("#role").classList.add('hidden')
 }
 
 
-function hideChoose() {
-    $("#choose").classList.add('hidden')
-}
-
-function showChoose() {
-    $('#choose').classList.remove('hidden')
+function setupScreens() {
     on($("#play-nav"),'click',()=>{
-        hideChoose()
+        hideRole()
+        showMode()
         const player = world.createEntity()
         player.addComponent(PlayerAvatar,{color:'aqua'})
         player.addComponent(NavConsolePlayer)
@@ -160,16 +166,16 @@ function showChoose() {
         player.getComponent(PlayerAvatar).wrapper.position.set(-1,-1,1)
     })
     on($("#play-weapons"),'click',()=>{
-        hideChoose()
+        hideRole()
+        showMode()
         const player = world.createEntity()
         player.addComponent(LocalPlayer)
         player.addComponent(PlayerAvatar,{color:'aqua'})
         player.addComponent(WeaponsConsolePlayer)
         player.getComponent(PlayerAvatar).wrapper.position.set(+1,-1,1)
     })
-}
 
-function setupScreens() {
+
     $("#play-vr").disabled = true
     const renderer = sceneEnt.getComponent(ThreeSceneHolder).renderer
     const vr = new VRManager(renderer)
@@ -180,14 +186,13 @@ function setupScreens() {
         console.log('starting the VR')
         vr.enterVR()
         // game.addComponent(VRMode)
-        const pointer1 = world.createEntity()
-        pointer1.addComponent(ImmersivePointer,{hand:0})
-        const pointer2 = world.createEntity()
-        pointer2.addComponent(ImmersivePointer,{hand:1})
     })
+    const pointer1 = world.createEntity()
+    pointer1.addComponent(ImmersivePointer,{hand:0})
+    const pointer2 = world.createEntity()
+    pointer2.addComponent(ImmersivePointer,{hand:1})
     on($("#play-desktop"),'click',()=>{
-        hideSplash()
-        showChoose()
+        hideMode()
     })
 }
 
@@ -200,7 +205,7 @@ function startGame() {
     const scene = sceneEnt.getComponent(ThreeSceneHolder).scene
 
     const camera = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 0.005, 10000 );
-    camera.position.z = 5;
+    // camera.position.z = 5;
 
     const floor = new THREE.Mesh(
         new THREE.CircleBufferGeometry(2,16),
@@ -220,6 +225,8 @@ function startGame() {
     renderer.setClearColor( 0x333333 );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.vr.enabled = true;
+
     document.body.appendChild( renderer.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
 
