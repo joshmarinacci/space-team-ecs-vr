@@ -13,7 +13,8 @@ import {
     Ship,
     WeaponsConsoleComponent,
     WeaponsConsolePlayer,
-    WeaponsConsoleSystem
+    WeaponsConsoleSystem,
+    MousePointerSystem,
 } from './player.js'
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {AnimatePosition, AnimationSystem, ThreeManager} from './three.js'
@@ -63,6 +64,8 @@ class Scenario {
 const world = new World();
 
 world.registerSystem(MouseInputSystem)
+world.registerSystem(MousePointerSystem)
+// world.registerSystem(ImmersivePointerSystem)
 // world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(NavConsoleSystem) // handles logic for the nav console
 world.registerSystem(WeaponsConsoleSystem) // handles logic for the weapons console
@@ -162,8 +165,18 @@ function showChoose() {
 }
 
 function setupScreens() {
-    $("#play-vr").setAttribute('disabled',true)
-    $("#play-desktop").addEventListener('click',()=>{
+    $("#play-vr").disabled = true
+    // const vr = new VRManager(renderer)
+    // on(vr,VR_DETECTED,()=>{
+    //     $("#play-vr").disabled = false
+    // })
+    on($("#play-vr"),'click',()=>{
+        console.log('starting the VR')
+        // vr.enterVR()
+        // game.addComponent(VRMode)
+        // game.addComponent(Pointer, {hand:0})
+    })
+    on($("#play-desktop"),'click',()=>{
         hideSplash()
         showChoose()
     })

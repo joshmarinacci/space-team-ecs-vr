@@ -1,6 +1,9 @@
 import {World, System} from "./node_modules/ecsy/build/ecsy.module.js"
 import {CameraHolder, ThreeSceneHolder} from './common.js'
 
+export class Clicked {
+
+}
 export class MouseInputState {
     constructor() {
         this.intersection = null
