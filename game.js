@@ -19,6 +19,8 @@ import {
 import {MouseInputState, MouseInputSystem} from './input.js'
 import {AnimatePosition, AnimationSystem, ThreeManager} from './three.js'
 import {NetworkState, NetworkSystem} from './network.js'
+import {ImmersivePointerSystem} from './immersive.js'
+import {VR_DETECTED, VRManager} from './immersive.js'
 
 /*
 
@@ -65,7 +67,7 @@ const world = new World();
 
 world.registerSystem(MouseInputSystem)
 world.registerSystem(MousePointerSystem)
-// world.registerSystem(ImmersivePointerSystem)
+world.registerSystem(ImmersivePointerSystem)
 // world.registerSystem(EnemySystem) // moves enemies around, makes them fire on you, handles being killed
 world.registerSystem(NavConsoleSystem) // handles logic for the nav console
 world.registerSystem(WeaponsConsoleSystem) // handles logic for the weapons console
@@ -166,15 +168,16 @@ function showChoose() {
 
 function setupScreens() {
     $("#play-vr").disabled = true
-    // const vr = new VRManager(renderer)
-    // on(vr,VR_DETECTED,()=>{
-    //     $("#play-vr").disabled = false
-    // })
+    const renderer = sceneEnt.getComponent(ThreeSceneHolder).renderer
+    const vr = new VRManager(renderer)
+    on(vr,VR_DETECTED,()=>{
+        $("#play-vr").disabled = false
+    })
     on($("#play-vr"),'click',()=>{
         console.log('starting the VR')
-        // vr.enterVR()
-        // game.addComponent(VRMode)
-        // game.addComponent(Pointer, {hand:0})
+        vr.enterVR()
+        game.addComponent(VRMode)
+        game.addComponent(Pointer, {hand:0})
     })
     on($("#play-desktop"),'click',()=>{
         hideSplash()
@@ -185,7 +188,6 @@ function setupScreens() {
 
 function startGame() {
     generateScenario()
-    setupScreens()
     game.getMutableComponent(GameState).mode = 'PLAYING'
 
     const clock = new THREE.Clock();
@@ -215,6 +217,7 @@ function startGame() {
     document.body.appendChild( renderer.domElement );
     window.addEventListener( 'resize', onWindowResize, false );
 
+    sceneEnt.getMutableComponent(ThreeSceneHolder).renderer = renderer
     sceneEnt.getMutableComponent(CameraHolder).camera = camera
     const ambientLight = new THREE.AmbientLight( 0xcccccc );
     scene.add( ambientLight );
@@ -237,6 +240,9 @@ function startGame() {
     }
 
     renderer.setAnimationLoop(animate);
+
+    setupScreens()
+
 }
 
 

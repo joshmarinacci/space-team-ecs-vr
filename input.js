@@ -4,6 +4,9 @@ import {CameraHolder, ThreeSceneHolder} from './common.js'
 export class Clicked {
 
 }
+export class Clickable {
+
+}
 export class MouseInputState {
     constructor() {
         this.intersection = null

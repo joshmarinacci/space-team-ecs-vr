@@ -26,7 +26,7 @@ export class ThreeSceneHolder {
         this.scene.add(this.space_rot)
         this.space_rot.add(this.space_trans)
         this.scene.add(this.ship_group)
-
+        this.renderer = null
     }
 }
 

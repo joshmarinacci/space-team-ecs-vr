@@ -1,3 +1,5 @@
+import {CameraHolder, ThreeSceneHolder} from './common.js'
+
 function printError(err) {
     console.log(err)
 }
@@ -125,7 +127,7 @@ export class ImmersivePointerSystem {
                     component: [ImmersivePointer]
                 },
                 scenes: {
-                    component: [ThreeSceneHolder, Camera]
+                    component: [ThreeSceneHolder, CameraHolder]
                 }
             }
         }
